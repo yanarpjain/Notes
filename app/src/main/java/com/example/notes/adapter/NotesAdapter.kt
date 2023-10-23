@@ -6,17 +6,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.RecyclerView
+import com.example.notes.MainActivity
 import com.example.notes.R
 import com.example.notes.models.Note
 import kotlin.random.Random
 
-class NotesAdapter(private val context: Context, val listner: NotesClickListner): RecyclerView.Adapter<NotesAdapter.NoteViewHolder>() {
+class NotesAdapter(private val context: Context, val listner: MainActivity): RecyclerView.Adapter<NotesAdapter.NoteViewHolder>() {
 
 
-    private val NoteList: ArrayList<Note>()
-    private val fullList: ArrayList<Note>()
-
+    private val NoteList= ArrayList<Note>()
+    private val fullList= ArrayList<Note>()
+    /*private val noteColors: MutableMap<Int, Int> = mutableMapOf()*/
+    private val noteColors = mutableMapOf<Int, Int>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
         return NoteViewHolder(
@@ -51,8 +54,43 @@ class NotesAdapter(private val context: Context, val listner: NotesClickListner)
     }
 
 
+    fun updateList(newList: List<Note>)
+    {
+        fullList.clear()
+        fullList.addAll(newList)
 
-    fun randomColor(): Int{
+        NoteList.clear()
+        NoteList.addAll(fullList)
+
+
+        // Store colors for notes
+        for (note in NoteList) {
+            if (!noteColors.containsKey(note.id)) {
+                noteColors[note.id ?: 0] = randomColor()
+
+            }
+        }
+
+        notifyDataSetChanged()
+    }
+
+
+    fun filterList(search: String) {
+        NoteList.clear()
+
+        for (item in fullList) {
+            if (item.title?.lowercase()?.contains(search.lowercase()) == true ||
+                item.note?.lowercase()?.contains(search.lowercase()) == true
+            ) {
+                NoteList.add(item)
+            }
+        }
+
+        notifyDataSetChanged()
+    }
+
+
+    private fun randomColor(): Int{
         val list= ArrayList<Int>()
         list.add(R.color.NoteColor1)
         list.add(R.color.NoteColor2)
